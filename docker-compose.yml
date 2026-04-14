@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:17
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: notesdb
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: ./backend
+    container_name: backend
+    ports:
+      - "5000:5000"
+    environment:
+      DB_HOST: postgres
+      DB_USER: postgres
+      DB_PASSWORD: 1234
+      DB_NAME: notesdb
+    depends_on:
+      - postgres
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+  volumes:
+    db_data: 
