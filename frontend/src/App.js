@@ -38,7 +38,7 @@ function App() {
     try {
       if (editingNote) {
         await editNote(editingNote.id, data);
-        addToast('Note updated', 'success');
+        addToast('Note updated!', 'success');
       } else {
         await addNote(data);
         addToast('Note created', 'success');
