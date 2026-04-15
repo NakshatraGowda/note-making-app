@@ -52,7 +52,8 @@ const NoteModal = ({ note, onClose, onSave }) => {
       await onSave({ title: title.trim(), content: content.trim(), color, tags });
       onClose();
     } catch (e) {
-      setError(e.response?.data?.error || 'Failed to save note');
+      const errorMsg = e.response?.data?.error || e.message || 'Failed to save note';
+      setError(errorMsg);
       setSaving(false);
     }
   };

@@ -10,19 +10,24 @@ const pool = new Pool({
 });
 
 const initDB = async () => {
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS notes (
-      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-      title VARCHAR(100) NOT NULL,
-      content TEXT,
-      color VARCHAR(20) DEFAULT '#ffffff',
-      tags TEXT[] DEFAULT '{}',
-      pinned BOOLEAN DEFAULT false,
-      created_at TIMESTAMP DEFAULT NOW(),
-      updated_at TIMESTAMP DEFAULT NOW()
-    );
-  `);
-  console.log('✅ Database initialized');
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS notes (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        title VARCHAR(100) NOT NULL,
+        content TEXT,
+        color VARCHAR(20) DEFAULT '#ffffff',
+        tags TEXT[] DEFAULT '{}',
+        pinned BOOLEAN DEFAULT false,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      );
+    `);
+    console.log('✅ Database initialized');
+  } catch (err) {
+    console.error('❌ Failed to initialize database:', err.message);
+    throw err;
+  }
 };
 
 module.exports = { pool, initDB };

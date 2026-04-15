@@ -35,24 +35,36 @@ function App() {
   const handleAdd = () => { setEditingNote(null); setShowModal(true); };
 
   const handleSave = async (data) => {
-    if (editingNote) {
-      await editNote(editingNote.id, data);
-      addToast('Note updated', 'success');
-    } else {
-      await addNote(data);
-      addToast('Note created', 'success');
+    try {
+      if (editingNote) {
+        await editNote(editingNote.id, data);
+        addToast('Note updated', 'success');
+      } else {
+        await addNote(data);
+        addToast('Note created', 'success');
+      }
+    } catch (error) {
+      addToast(error.message || 'Failed to save note', 'error');
     }
   };
 
   const handleDelete = async (id) => {
-    await removeNote(id);
-    setDeleteConfirm(null);
-    addToast('Note deleted', 'info');
+    try {
+      await removeNote(id);
+      setDeleteConfirm(null);
+      addToast('Note deleted', 'info');
+    } catch (error) {
+      addToast(error.message || 'Failed to delete note', 'error');
+    }
   };
 
   const handlePin = async (id) => {
-    const updated = await pinNote(id);
-    addToast(updated.pinned ? 'Note pinned' : 'Note unpinned', 'info');
+    try {
+      const updated = await pinNote(id);
+      addToast(updated.pinned ? 'Note pinned' : 'Note unpinned', 'info');
+    } catch (error) {
+      addToast(error.message || 'Failed to update note', 'error');
+    }
   };
 
   const pinnedNotes = notes.filter(n => n.pinned);

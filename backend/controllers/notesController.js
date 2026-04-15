@@ -3,6 +3,7 @@ const { pool } = require('../config/db');
 const getAllNotes = async (req, res) => {
   try {
     const { search, tag } = req.query;
+    console.log('Fetching notes with filters:', { search, tag });
     let query = 'SELECT * FROM notes';
     const params = [];
     const conditions = [];
@@ -20,9 +21,12 @@ const getAllNotes = async (req, res) => {
     if (conditions.length) query += ' WHERE ' + conditions.join(' AND ');
     query += ' ORDER BY pinned DESC, updated_at DESC';
 
+    console.log('Executing query:', { query, params });
     const result = await pool.query(query, params);
+    console.log('Found notes:', result.rows.length);
     res.json({ success: true, data: result.rows });
   } catch (err) {
+    console.error('Error fetching notes:', err);
     res.status(500).json({ success: false, error: err.message });
   }
 };
@@ -42,12 +46,14 @@ const createNote = async (req, res) => {
     const { title, content, color = '#ffffff', tags = [] } = req.body;
     if (!title) return res.status(400).json({ success: false, error: 'Title is required' });
 
+    console.log('Creating note:', { title, content, color, tags });
     const result = await pool.query(
       'INSERT INTO notes (title, content, color, tags) VALUES ($1, $2, $3, $4) RETURNING *',
       [title, content, color, tags]
     );
     res.status(201).json({ success: true, data: result.rows[0] });
   } catch (err) {
+    console.error('Error creating note:', err);
     res.status(500).json({ success: false, error: err.message });
   }
 };

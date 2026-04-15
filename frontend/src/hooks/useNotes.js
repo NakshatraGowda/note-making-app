@@ -27,9 +27,15 @@ export const useNotes = () => {
     setError(null);
     try {
       const res = await api.fetchNotes({ search: search || undefined });
-      setNotes(res.data.data);
+      if (res.data && res.data.data) {
+        setNotes(res.data.data);
+      } else {
+        setError('Invalid response format from server');
+      }
     } catch (e) {
-      setError(e.response?.data?.error || 'Failed to load notes');
+      console.error('Error loading notes:', e);
+      const errorMsg = e.response?.data?.error || e.message || 'Failed to load notes';
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -41,26 +47,46 @@ export const useNotes = () => {
   }, [loadNotes]);
 
   const addNote = async (data) => {
-    const res = await api.createNote(data);
-    setNotes(prev => [res.data.data, ...prev]);
-    return res.data.data;
+    try {
+      const res = await api.createNote(data);
+      setNotes(prev => [res.data.data, ...prev]);
+      return res.data.data;
+    } catch (error) {
+      const errorMsg = error.response?.data?.error || error.message || 'Failed to save note';
+      throw new Error(errorMsg);
+    }
   };
 
   const editNote = async (id, data) => {
-    const res = await api.updateNote(id, data);
-    setNotes(prev => prev.map(n => n.id === id ? res.data.data : n));
-    return res.data.data;
+    try {
+      const res = await api.updateNote(id, data);
+      setNotes(prev => prev.map(n => n.id === id ? res.data.data : n));
+      return res.data.data;
+    } catch (error) {
+      const errorMsg = error.response?.data?.error || error.message || 'Failed to update note';
+      throw new Error(errorMsg);
+    }
   };
 
   const removeNote = async (id) => {
-    await api.deleteNote(id);
-    setNotes(prev => prev.filter(n => n.id !== id));
+    try {
+      await api.deleteNote(id);
+      setNotes(prev => prev.filter(n => n.id !== id));
+    } catch (error) {
+      const errorMsg = error.response?.data?.error || error.message || 'Failed to delete note';
+      throw new Error(errorMsg);
+    }
   };
 
   const pinNote = async (id) => {
-    const res = await api.togglePin(id);
-    setNotes(prev => prev.map(n => n.id === id ? res.data.data : n));
-    return res.data.data;
+    try {
+      const res = await api.togglePin(id);
+      setNotes(prev => prev.map(n => n.id === id ? res.data.data : n));
+      return res.data.data;
+    } catch (error) {
+      const errorMsg = error.response?.data?.error || error.message || 'Failed to pin note';
+      throw new Error(errorMsg);
+    }
   };
 
   const sorted = sortNotes(notes, sort);
